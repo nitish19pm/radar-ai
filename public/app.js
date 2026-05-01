@@ -115,21 +115,20 @@
   // ── Client-side fetchers (CORS-friendly APIs) ─────────────────────────────
 
   async function fetchHackerNews() {
-    const queries = [
-      'claude product manager', 'chatgpt product manager',
-      'gemini product manager', 'copilot product manager',
-      'AI product management', 'LLM product manager',
-      'anthropic', 'openai product',
-    ];
+    const queries = ['anthropic', 'chatgpt', 'openai', 'gemini ai', 'github copilot', 'claude ai'];
     const seenIds = new Set();
     const posts = [];
 
-    for (const q of queries) {
-      const r = await fetch(
-        `https://hn.algolia.com/api/v1/search_by_date?query=${encodeURIComponent(q)}&hitsPerPage=30`
-      );
-      const data = await r.json();
-      for (const hit of data.hits ?? []) {
+    const results = await Promise.allSettled(
+      queries.map(q =>
+        fetch(`https://hn.algolia.com/api/v1/search_by_date?query=${encodeURIComponent(q)}&hitsPerPage=25`)
+          .then(r => r.json())
+      )
+    );
+
+    for (const result of results) {
+      if (result.status !== 'fulfilled') continue;
+      for (const hit of result.value.hits ?? []) {
         if (!hit.title || seenIds.has(hit.objectID)) continue;
         seenIds.add(hit.objectID);
         posts.push({
@@ -148,16 +147,19 @@
   }
 
   async function fetchDevTo() {
-    const tags = ['claude', 'anthropic', 'chatgpt', 'openai', 'gemini', 'copilot', 'productmanagement'];
-    const responses = await Promise.all(
-      tags.map(tag => fetch(`https://dev.to/api/articles?tag=${tag}&per_page=30`).then(r => r.json()))
+    const tags = ['claude', 'chatgpt', 'openai', 'gemini', 'copilot', 'productmanagement'];
+    const results = await Promise.allSettled(
+      tags.map(tag =>
+        fetch(`https://dev.to/api/articles?tag=${tag}&per_page=30`).then(r => r.json())
+      )
     );
 
     const seenIds = new Set();
     const posts = [];
 
-    for (const articles of responses) {
-      for (const article of (Array.isArray(articles) ? articles : [])) {
+    for (const result of results) {
+      if (result.status !== 'fulfilled') continue;
+      for (const article of (Array.isArray(result.value) ? result.value : [])) {
         if (!article.title || seenIds.has(article.id)) continue;
         seenIds.add(article.id);
         posts.push({
