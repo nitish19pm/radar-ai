@@ -123,11 +123,13 @@
     devto:       { label: 'Dev.to',      cls: 'badge-devto' },
     producthunt: { label: 'Product Hunt',cls: 'badge-ph' },
     reddit:      { label: 'Reddit',      cls: 'badge-reddit' },
+    rss:         { label: 'Newsletter',  cls: 'badge-rss' },
   };
 
   function buildCard(post) {
     const src = SOURCES[post.source] ?? { label: post.source, cls: '' };
-    const subLabel = post.subreddit ? `<span class="card-sub">${post.subreddit}</span>` : '';
+    const subLabel = post.subreddit ? `<span class="card-sub">${post.subreddit}</span>`
+                   : post.newsletter ? `<span class="card-sub">${escapeHtml(post.newsletter)}</span>` : '';
     const upvoteStr = post.upvotes > 0 ? `<span class="upvotes">▲ ${post.upvotes.toLocaleString()}</span>` : '<span></span>';
     const timestamp = post.createdAt ? `<span class="timestamp">${timeAgo(post.createdAt)}</span>` : '<span></span>';
     const permalink = post.permalink || post.url;
@@ -265,14 +267,16 @@
     const errors = [];
     let latestFetchedAt = null;
 
-    const [hnResult, devtoResult] = await Promise.allSettled([
+    const [hnResult, devtoResult, rssResult] = await Promise.allSettled([
       fetchHackerNews(),
       fetchDevTo(),
+      fetch('/api/rss').then(r => r.json()),
     ]);
 
     const labeled = [
       { result: hnResult,    label: 'Hacker News' },
       { result: devtoResult, label: 'Dev.to' },
+      { result: rssResult,   label: 'Newsletters' },
     ];
 
     const posts = [];
