@@ -97,6 +97,38 @@
     }
   }
 
+  // ── Reddit (fetched client-side — Reddit allows browser CORS) ───────────
+
+  async function fetchReddit() {
+    const headers = { 'User-Agent': 'ClaudePulse/1.0' };
+    const [r1, r2] = await Promise.all([
+      fetch('https://www.reddit.com/r/ClaudeAI/new.json?limit=25', { headers }),
+      fetch('https://www.reddit.com/search.json?q=claude+anthropic&sort=new&limit=25', { headers }),
+    ]);
+    const [d1, d2] = await Promise.all([r1.json(), r2.json()]);
+
+    const seenIds = new Set();
+    const posts = [];
+    for (const data of [d1, d2]) {
+      for (const child of data?.data?.children ?? []) {
+        const p = child.data;
+        if (!p || seenIds.has(p.id)) continue;
+        seenIds.add(p.id);
+        posts.push({
+          id: p.id,
+          title: p.title,
+          url: p.url,
+          permalink: `https://www.reddit.com${p.permalink}`,
+          upvotes: p.ups,
+          subreddit: p.subreddit_name_prefixed,
+          createdAt: p.created_utc * 1000,
+          source: 'reddit',
+        });
+      }
+    }
+    return { posts, fetchedAt: Date.now() };
+  }
+
   // ── Fetch ─────────────────────────────────────────────────────────────────
 
   async function fetchAll() {
@@ -110,7 +142,7 @@
     let latestFetchedAt = null;
 
     const results = await Promise.allSettled([
-      fetch('/api/reddit').then((r) => r.json()),
+      fetchReddit(),
       fetch('/api/producthunt').then((r) => r.json()),
     ]);
 
