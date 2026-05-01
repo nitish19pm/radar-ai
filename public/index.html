@@ -18,8 +18,8 @@
           <button class="filter-btn active" data-source="all">All</button>
           <button class="filter-btn" data-source="hackernews">Hacker News</button>
           <button class="filter-btn" data-source="devto">Dev.to</button>
-          <button class="filter-btn" data-source="producthunt">Product Hunt</button>
-          <button class="filter-btn" data-source="reddit">Reddit</button>
+          <button class="filter-btn wip" data-source="producthunt" data-wip="true">Product Hunt</button>
+          <button class="filter-btn wip" data-source="reddit" data-wip="true">Reddit</button>
         </div>
         <button id="refresh-btn" class="refresh-btn">
           <span class="refresh-icon">↻</span> Refresh
@@ -36,6 +36,17 @@
       <p>No posts found. Try refreshing.</p>
     </div>
   </main>
+
+  <div id="wip-popup" class="wip-popup hidden">
+    <div class="wip-popup-inner">
+      <span class="wip-icon">🚧</span>
+      <div>
+        <strong>Work in Progress</strong>
+        <p>This source is coming soon!</p>
+      </div>
+      <button id="wip-close">✕</button>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>

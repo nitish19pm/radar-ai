@@ -221,10 +221,25 @@
     refreshBtn.classList.remove('spinning');
   }
 
+  // ── WIP popup ────────────────────────────────────────────────────────────
+
+  const wipPopup = document.getElementById('wip-popup');
+  const wipClose = document.getElementById('wip-close');
+  let wipTimer = null;
+
+  function showWip() {
+    wipPopup.classList.remove('hidden');
+    clearTimeout(wipTimer);
+    wipTimer = setTimeout(() => wipPopup.classList.add('hidden'), 3000);
+  }
+
+  wipClose.addEventListener('click', () => wipPopup.classList.add('hidden'));
+
   // ── Filters ───────────────────────────────────────────────────────────────
 
   filterBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
+      if (btn.dataset.wip) { showWip(); return; }
       filterBtns.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       activeFilter = btn.dataset.source;
