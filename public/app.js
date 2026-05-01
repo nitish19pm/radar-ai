@@ -106,7 +106,7 @@
   // ── PM + AI keyword filter ────────────────────────────────────────────────
 
   const AI_KEYWORDS = ['claude', 'anthropic', 'chatgpt', 'openai', 'gpt-4', 'gpt4', 'gemini', 'copilot', 'llm', 'ai tool', 'large language model'];
-  const PM_KEYWORDS = ['product manager', 'product management', 'product strategy', 'roadmap', 'product owner', 'prd', 'go-to-market', 'gtm', 'product lead', 'product team', 'product thinking', 'product design'];
+  const PM_KEYWORDS = ['product manager', 'product management', 'product strategy', 'roadmap', 'product owner', 'prd', 'go-to-market', 'gtm', 'product lead', 'product team', 'product thinking', 'product design', ' pm ', 'pms ', 'product build', 'product dev', 'product work', 'product folk', 'product people', 'build product', 'ship product', 'saas', 'b2b', 'enterprise', 'workflow', 'productivity', 'use case', 'use cases', 'decision making', 'stakeholder', 'feature priorit', 'product launch', 'go to market'];
 
   function isPmAiArticle(title) {
     const t = title.toLowerCase();
@@ -158,7 +158,7 @@
   async function fetchDevTo() {
     const tags = ['claude', 'anthropic', 'chatgpt', 'openai', 'gemini', 'copilot', 'productmanagement'];
     const responses = await Promise.all(
-      tags.map(tag => fetch(`https://dev.to/api/articles?tag=${tag}&per_page=30&top=1`).then(r => r.json()))
+      tags.map(tag => fetch(`https://dev.to/api/articles?tag=${tag}&per_page=30`).then(r => r.json()))
     );
 
     const seenIds = new Set();
