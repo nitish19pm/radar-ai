@@ -263,6 +263,22 @@ main {
   text-decoration: underline;
 }
 
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  font-size: 0.68rem;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #1e2640;
+  color: #8899cc;
+  border: 1px solid #2e3a55;
+  letter-spacing: 0.2px;
+}
+
 .card-footer {
   display: flex;
   align-items: center;

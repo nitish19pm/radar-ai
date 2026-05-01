@@ -66,6 +66,9 @@
     const upvoteStr = post.upvotes > 0 ? `<span class="upvotes">▲ ${post.upvotes.toLocaleString()}</span>` : '<span></span>';
     const timestamp = post.createdAt ? `<span class="timestamp">${timeAgo(post.createdAt)}</span>` : '<span></span>';
     const permalink = post.permalink || post.url;
+    const tagsHtml = (post.tags || []).length > 0
+      ? `<div class="card-tags">${post.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>`
+      : '';
 
     return `
       <article class="card" data-source="${post.source}">
@@ -76,6 +79,7 @@
         <div class="card-title">
           <a href="${permalink}" target="_blank" rel="noopener noreferrer">${escapeHtml(post.title)}</a>
         </div>
+        ${tagsHtml}
         <div class="card-footer">
           ${upvoteStr}
           ${timestamp}
@@ -99,10 +103,32 @@
     }
   }
 
+  // ── PM + AI keyword filter ────────────────────────────────────────────────
+
+  const AI_KEYWORDS = ['claude', 'anthropic', 'chatgpt', 'openai', 'gpt-4', 'gpt4', 'gemini', 'copilot', 'llm', 'ai tool', 'large language model'];
+  const PM_KEYWORDS = ['product manager', 'product management', 'product strategy', 'roadmap', 'product owner', 'prd', 'go-to-market', 'gtm', 'product lead', 'product team', 'product thinking', 'product design'];
+
+  function isPmAiArticle(title) {
+    const t = title.toLowerCase();
+    return AI_KEYWORDS.some(k => t.includes(k)) && PM_KEYWORDS.some(k => t.includes(k));
+  }
+
+  function getMatchedTags(title) {
+    const t = title.toLowerCase();
+    const ai = AI_KEYWORDS.filter(k => t.includes(k));
+    const pm = PM_KEYWORDS.filter(k => t.includes(k));
+    return [...new Set([...ai, ...pm])].slice(0, 4);
+  }
+
   // ── Client-side fetchers (CORS-friendly APIs) ─────────────────────────────
 
   async function fetchHackerNews() {
-    const queries = ['anthropic', 'claude AI'];
+    const queries = [
+      'claude product manager', 'chatgpt product manager',
+      'gemini product manager', 'copilot product manager',
+      'AI product management', 'LLM product manager',
+      'anthropic', 'openai product',
+    ];
     const seenIds = new Set();
     const posts = [];
 
@@ -122,36 +148,39 @@
           upvotes: hit.points || 0,
           createdAt: new Date(hit.created_at).getTime(),
           source: 'hackernews',
+          tags: getMatchedTags(hit.title),
         });
       }
     }
-    return { posts, fetchedAt: Date.now() };
+    return { posts: posts.filter(p => isPmAiArticle(p.title)), fetchedAt: Date.now() };
   }
 
   async function fetchDevTo() {
-    const [r1, r2] = await Promise.all([
-      fetch('https://dev.to/api/articles?tag=claude&per_page=30&top=1'),
-      fetch('https://dev.to/api/articles?tag=anthropic&per_page=20&top=1'),
-    ]);
-    const [d1, d2] = await Promise.all([r1.json(), r2.json()]);
+    const tags = ['claude', 'anthropic', 'chatgpt', 'openai', 'gemini', 'copilot', 'productmanagement'];
+    const responses = await Promise.all(
+      tags.map(tag => fetch(`https://dev.to/api/articles?tag=${tag}&per_page=30&top=1`).then(r => r.json()))
+    );
 
     const seenIds = new Set();
     const posts = [];
 
-    for (const article of [...(Array.isArray(d1) ? d1 : []), ...(Array.isArray(d2) ? d2 : [])]) {
-      if (!article.title || seenIds.has(article.id)) continue;
-      seenIds.add(article.id);
-      posts.push({
-        id: String(article.id),
-        title: article.title,
-        url: article.url,
-        permalink: article.url,
-        upvotes: article.positive_reactions_count || 0,
-        createdAt: new Date(article.published_at).getTime(),
-        source: 'devto',
-      });
+    for (const articles of responses) {
+      for (const article of (Array.isArray(articles) ? articles : [])) {
+        if (!article.title || seenIds.has(article.id)) continue;
+        seenIds.add(article.id);
+        posts.push({
+          id: String(article.id),
+          title: article.title,
+          url: article.url,
+          permalink: article.url,
+          upvotes: article.positive_reactions_count || 0,
+          createdAt: new Date(article.published_at).getTime(),
+          source: 'devto',
+          tags: (article.tag_list || []).slice(0, 4),
+        });
+      }
     }
-    return { posts, fetchedAt: Date.now() };
+    return { posts: posts.filter(p => isPmAiArticle(p.title)), fetchedAt: Date.now() };
   }
 
   // ── Main fetch ────────────────────────────────────────────────────────────
