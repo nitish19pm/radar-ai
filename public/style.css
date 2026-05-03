@@ -200,12 +200,13 @@ main {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 18px 20px;
+  padding: 20px 22px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   transition: background 0.15s, border-color 0.15s, transform 0.12s;
   box-shadow: var(--shadow);
+  cursor: pointer;
 }
 
 .card:hover {
@@ -265,8 +266,8 @@ main {
 }
 
 .card-title {
-  font-size: 0.97rem;
-  font-weight: 500;
+  font-size: 1.02rem;
+  font-weight: 600;
   line-height: 1.45;
   color: var(--text);
   flex: 1;
@@ -572,7 +573,98 @@ main {
 
 #wip-close:hover { color: var(--text); }
 
+/* ── Search bar ── */
+.search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  font-size: 0.8rem;
+  pointer-events: none;
+}
+
+.search-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 7px 14px 7px 32px;
+  font-size: 0.85rem;
+  width: 200px;
+  transition: border-color 0.15s, width 0.2s;
+  outline: none;
+}
+
+.search-input::placeholder { color: var(--text-muted); }
+
+.search-input:focus {
+  border-color: var(--accent);
+  width: 260px;
+}
+
+/* ── Theme toggle ── */
+.theme-toggle {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  line-height: 1;
+}
+
+.theme-toggle:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+}
+
+/* ── Light theme ── */
+[data-theme="light"] {
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --surface-hover: #f0f1f5;
+  --border: #dde0e8;
+  --text: #1a1d27;
+  --text-muted: #5c637a;
+  --accent: #6248e8;
+  --accent-dim: #e5e0ff;
+  --shadow: 0 2px 16px rgba(0,0,0,0.10);
+}
+
+[data-theme="light"] header {
+  background: rgba(244, 245, 247, 0.92);
+}
+
+[data-theme="light"] .badge-hn   { background: #fff3e0; border-color: #ffcc80; }
+[data-theme="light"] .badge-devto { background: #f3e8ff; border-color: #d8a0f8; }
+[data-theme="light"] .badge-rss  { background: #e8f5e9; border-color: #a5d6a7; }
+[data-theme="light"] .tag        { background: #eef0f8; color: #5566aa; border-color: #c8ceec; }
+[data-theme="light"] .skel-line  {
+  background: linear-gradient(90deg, #e0e3ea 25%, #f0f2f5 50%, #e0e3ea 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+/* ── Card source accent borders ── */
+.card[data-source="hackernews"]  { border-left: 3px solid var(--hn); }
+.card[data-source="devto"]       { border-left: 3px solid var(--devto); }
+.card[data-source="rss"]         { border-left: 3px solid #4ade80; }
+.card[data-source="reddit"]      { border-left: 3px solid var(--reddit); }
+.card[data-source="producthunt"] { border-left: 3px solid var(--ph); }
+
+/* ── Visited card title links ── */
+.card-title a:visited {
+  color: var(--text-muted);
+}
+
 @media (max-width: 600px) {
   .cards-grid { grid-template-columns: 1fr; }
   .header-inner { flex-direction: column; align-items: flex-start; }
+  .search-input { width: 160px; }
+  .search-input:focus { width: 200px; }
 }

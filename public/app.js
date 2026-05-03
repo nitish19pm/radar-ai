@@ -8,6 +8,7 @@
 
   let allPosts = [];
   let activeFilter = 'all';
+  let searchQuery = '';
 
   // ── Chip filter state ─────────────────────────────────────────────────────
 
@@ -15,6 +16,26 @@
     'AI Tools': ['claude', 'anthropic', 'chatgpt', 'openai', 'gemini', 'copilot', 'gpt', 'llm', 'agent'],
     'Topics':   ['product management', 'roadmap', 'saas', 'enterprise', 'workflow', 'productivity'],
   };
+
+  // ── Theme ─────────────────────────────────────────────────────────────────
+  const themeToggle = document.getElementById('theme-toggle');
+  const savedTheme = localStorage.getItem('radarai_theme') || '';
+  document.body.dataset.theme = savedTheme;
+  themeToggle.textContent = savedTheme === 'light' ? '☀️' : '🌙';
+
+  themeToggle.addEventListener('click', () => {
+    const next = document.body.dataset.theme === 'light' ? '' : 'light';
+    document.body.dataset.theme = next;
+    localStorage.setItem('radarai_theme', next);
+    themeToggle.textContent = next === 'light' ? '☀️' : '🌙';
+  });
+
+  // ── Search ────────────────────────────────────────────────────────────────
+  const searchInput = document.getElementById('search-input');
+  searchInput.addEventListener('input', () => {
+    searchQuery = searchInput.value.toLowerCase().trim();
+    renderPosts();
+  });
 
   let activeChips  = new Set(JSON.parse(localStorage.getItem('radarai_chips') || '[]'));
   let filterOpen   = JSON.parse(localStorage.getItem('radarai_filter_open') || 'false');
@@ -187,6 +208,10 @@
       );
     }
 
+    if (searchQuery) {
+      filtered = filtered.filter(p => p.title.toLowerCase().includes(searchQuery));
+    }
+
     if (filtered.length === 0) {
       grid.innerHTML = '';
       emptyState.classList.remove('hidden');
@@ -284,6 +309,8 @@
     refreshBtn.disabled = true;
     refreshBtn.classList.add('spinning');
     hideStatus();
+    searchInput.value = '';
+    searchQuery = '';
     renderSkeletons();
     emptyState.classList.add('hidden');
 
