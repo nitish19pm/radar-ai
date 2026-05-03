@@ -43,11 +43,14 @@ claude_pulse/
 | Newsletters | `/api/rss` (server) | TLDR AI, Ben's Bites, The Rundown AI, Import AI |
 
 ## Key Frontend Features (app.js)
-- **Chip filter**: Collapsible keyword filter bar (AI Tools + Topics chips). Multi-select, OR logic. Persisted in `localStorage` (`claude_pulse_chips`, `claude_pulse_filter_open`).
+- **Chip filter**: Collapsible keyword filter bar (AI Tools + Topics chips). Multi-select, OR logic. Persisted in `localStorage` (`radarai_chips`, `radarai_filter_open`).
 - **Source filter**: All / Hacker News / Dev.to / Newsletters buttons. Reddit + Product Hunt show WIP popup.
+- **Search bar**: Live text search filtering posts by title. Clears on refresh. Persists `searchQuery` state in memory.
+- **Theme toggle**: 🌙/☀️ button toggles dark/light theme. Persisted in `localStorage` (`radarai_theme`). Light theme overrides CSS variables via `[data-theme="light"]` on `<body>`.
 - **Tags on cards**: HN cards show matched AI keywords; Dev.to cards show actual `tag_list` from API.
+- **Source accent borders**: Cards have a colored left border matching their source (HN=orange, Dev.to=purple, Newsletter=green).
 - **Skeleton loaders**: Shimmer animation while fetching.
-- **Refresh button**: Re-fetches all sources, updates "Last fetched" timestamp.
+- **Refresh button**: Re-fetches all sources, clears search, updates "Last fetched" timestamp.
 - **Deduplication**: Posts deduplicated by ID within each source.
 - **Sort**: Newest first by `createdAt` timestamp. Posts without timestamps go to the end.
 
